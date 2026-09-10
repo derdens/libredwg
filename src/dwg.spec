@@ -5523,7 +5523,7 @@ DWG_ENTITY (LWPOLYLINE)
     SINCE (R_2010b) {
       FIELD_VECTOR (vertexids, BL, num_vertexids, 91);
     }
-    REPEAT (num_widths, widths, Dwg_LWPOLYLINE_width)
+    REPEAT_FIX (num_widths, widths, Dwg_LWPOLYLINE_width, 2BD)
     REPEAT_BLOCK
         SUB_FIELD_BD (widths[rcount1],start, 40);
         SUB_FIELD_BD (widths[rcount1],end, 41);
@@ -5607,7 +5607,7 @@ DWG_SUBENT (PROXY_LWPOLYLINE)
   }
 
   FIELD_VECTOR (bulges, BD, num_bulges);
-  REPEAT (num_widths, widths, Dwg_LWPOLYLINE_width)
+  REPEAT_FIX (num_widths, widths, Dwg_LWPOLYLINE_width, 2BD)
   REPEAT_BLOCK
       SUB_FIELD_BD (widths[rcount1].start);
       SUB_FIELD_BD (widths[rcount1].end);

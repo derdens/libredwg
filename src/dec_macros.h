@@ -1638,6 +1638,35 @@
       return DWG_ERR_VALUEOUTOFBOUNDS;                                        \
     }
 
+
+#define REPEAT_CHKCOUNT_LVAL_FIX(name, times, type, dwg_type)                 \
+  if (AVAIL_BITS (dat) < 0)                                                   \
+    {                                                                         \
+      LOG_ERROR ("Invalid %s." #name ". No bytes left.\n", SAFEDXFNAME);      \
+      times = 0;                                                              \
+      if (_obj->name)                                                         \
+        {                                                                     \
+          free (_obj->name);                                                  \
+          _obj->name = NULL;                                                  \
+        }                                                                     \
+      return DWG_ERR_VALUEOUTOFBOUNDS;                                        \
+    }                                                                         \
+  LOG_INSANE ("REPEAT_CHKCOUNT_LVAL %s." #name " x %lu: %lu > %" PRId64       \
+              "?\n",                                                          \
+              SAFEDXFNAME, (unsigned long)times,                              \
+              (unsigned long)((times) * sizeof (type)), AVAIL_BITS (dat));    \
+  if ((int64_t)((times) * TYPE_MAXELEMSIZE (dwg_type)) > AVAIL_BITS (dat)                   \
+      || (sizeof (times) > 4 && times > 0xc0000000 / sizeof (type)))          \
+    {                                                                         \
+      LOG_ERROR ("Invalid %s." #name " x %ld\n", SAFEDXFNAME, (long)times);   \
+      times = 0;                                                              \
+      if (_obj->name)                                                         \
+        {                                                                     \
+          free (_obj->name);                                                  \
+          _obj->name = NULL;                                                  \
+        }                                                                     \
+      return DWG_ERR_VALUEOUTOFBOUNDS;                                        \
+    }
 /* REPEAT names:
   _ adds idx
   C does no checks
@@ -1675,6 +1704,18 @@
         return DWG_ERR_OUTOFMEM;                                              \
     }                                                                         \
   for (rcount##idx = 0; rcount##idx < (BITCODE_BL)_obj->times; rcount##idx++)
+
+#define _REPEAT_FIX(times, nam, type, dwg_type, idx)                                        \
+  REPEAT_CHKCOUNT_LVAL_FIX (nam, _obj->times, type, dwg_type)                               \
+  if (_obj->times > 0)                                                        \
+    {                                                                         \
+      _obj->nam = (type *)calloc (_obj->times, sizeof (type));                \
+      if (!_obj->nam)                                                         \
+        return DWG_ERR_OUTOFMEM;                                              \
+    }                                                                         \
+  for (rcount##idx = 0; rcount##idx < (BITCODE_BL)_obj->times; rcount##idx++)
+
+
 // unchecked with var. times
 #define _REPEAT_C(times, name, type, idx)                                     \
   if (_obj->times > 0)                                                        \
@@ -1695,6 +1736,9 @@
 // not allocating versions checked: _REPEAT_NF
 
 #define REPEAT(times, name, type) _REPEAT (times, name, type, 1)
+
+#define REPEAT_FIX(times, name, type, dwg_type) _REPEAT_FIX (times, name, type, dwg_type, 1)
+
 #define REPEAT2(times, name, type) _REPEAT (times, name, type, 2)
 #define REPEAT3(times, name, type) _REPEAT (times, name, type, 3)
 #define REPEAT4(times, name, type) _REPEAT (times, name, type, 4)

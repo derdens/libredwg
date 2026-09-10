@@ -850,6 +850,9 @@
         for (rcount##idx = 0; rcount##idx < (BITCODE_BL)_obj->times;          \
              rcount##idx++)
 #  endif
+
+#  define REPEAT_FIX(times, name, type, dwg_type) _REPEAT (times, name, type, 1)
+
 #  define REPEAT(times, name, type) _REPEAT (times, name, type, 1)
 #  define REPEAT2(times, name, type) _REPEAT (times, name, type, 2)
 #  define REPEAT3(times, name, type) _REPEAT (times, name, type, 3)
