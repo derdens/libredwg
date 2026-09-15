@@ -97,7 +97,12 @@
           FIELD_HANDLE (next_entity, 4, 0);
         }
     }
-
+    SINCE (R_2004)
+    {
+      if (FIELD_VALUE (color.flag) & 0x40) {
+          FIELD_HANDLE (color.handle, 0, 430);
+        }
+    }
   SINCE (R_2000b)
     {
       FIELD_HANDLE (layer, 5, 8);

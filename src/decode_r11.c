@@ -588,7 +588,7 @@ decode_preR13_section (Dwg_Section_Type_r11 id, Bit_Chain *restrict dat,
         return DWG_ERR_INTERNALERROR;
       }
   }
-#undef DECODE_PRER13_SENTINEL
+
 #undef CASE_SENTINEL_END
 
   return error;
@@ -759,6 +759,35 @@ decode_preR13 (Bit_Chain *restrict dat, Dwg_Data *restrict dwg)
     // this has usually some slack at the end.
     return error;
   }
+
+  Dwg_Sentinel sentinel;
+
+  SINCE (R_11)
+  {
+    
+
+   read_preR13_sentinel (&sentinel, dat, dwg);
+    read_preR13_sentinel (&sentinel, dat, dwg);
+
+    //switch (entity_section)
+    //  {
+    //  case ENTITIES_SECTION_INDEX:
+    //    DECODE_PRER13_SENTINEL (DWG_SENTINEL_R11_ENTITIES_BEGIN);
+    //    break;
+    //  case BLOCKS_SECTION_INDEX:
+    //    DECODE_PRER13_SENTINEL (DWG_SENTINEL_R11_BLOCK_ENTITIES_BEGIN);
+    //    break;
+    //  case EXTRAS_SECTION_INDEX:
+    //    DECODE_PRER13_SENTINEL (DWG_SENTINEL_R11_EXTRA_ENTITIES_BEGIN);
+    //    break;
+    //  default:
+    //    LOG_ERROR ("Internal error: Illegal entity_section %d 0-2\n",
+    //               (int)entity_section);
+    //    return DWG_ERR_INTERNALERROR;
+    //  }
+  }
+
+#undef DECODE_PRER13_SENTINEL
 
   error |= decode_preR13_section (SECTION_BLOCK, dat, dwg);
   if (error >= DWG_ERR_CRITICAL)

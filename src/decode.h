@@ -195,6 +195,10 @@ int decode_preR13_DIMENSION (Bit_Chain *restrict dat,
 int decode_preR13_sentinel (const Dwg_Sentinel sentinel,
                             const char *restrict sentinel_name,
                             Bit_Chain *restrict dat, Dwg_Data *restrict dwg);
+
+int read_preR13_sentinel (Dwg_Sentinel *sentinel, Bit_Chain *restrict dat,
+                          Dwg_Data *restrict dwg);
+
 int decode_preR13_entities (BITCODE_RL start, BITCODE_RL end,
                             unsigned num_entities, BITCODE_RL size,
                             Bit_Chain *restrict dat, Dwg_Data *restrict dwg,

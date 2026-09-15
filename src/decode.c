@@ -4404,6 +4404,7 @@ int
 dwg_decode_entity (Bit_Chain *dat, Bit_Chain *hdl_dat, Bit_Chain *str_dat,
                    Dwg_Object_Entity *restrict ent)
 {
+
   int error = 0;
   Dwg_Data *dwg = ent->dwg;
   Dwg_Object *obj = &dwg->object[ent->objid];
@@ -4411,6 +4412,11 @@ dwg_decode_entity (Bit_Chain *dat, Bit_Chain *hdl_dat, Bit_Chain *str_dat,
   Dwg_Object_Entity *_ent = ent;
   size_t objectpos = bit_position (dat);
   int has_wrong_bitsize = 0;
+
+    if ( ent->objid == 97385u )
+    {
+        int r = bit_position (dat);
+    }
 
   // obj->dat_address = dat->byte; // the data stream offset
   obj->bitsize_pos = objectpos; // absolute. needed for encode
@@ -4909,9 +4915,9 @@ dwg_decode_common_entity_handle_data (Bit_Chain *dat, Bit_Chain *hdl_dat,
   _obj = _ent = obj->tio.entity;
 
   // deferred from common_entity_data, which has no hdl_dat
-  if (dat->from_version >= R_2007 && _ent->color.flag & 0x40)
-    FIELD_HANDLE (color.handle, 0,
-                  430); // lgtm[cpp/use-after-free] codeql[cpp/use-after-free]
+  //if (dat->from_version >= R_2007 && _ent->color.flag & 0x40)
+  //  FIELD_HANDLE (color.handle, 0,
+  //                430); // lgtm[cpp/use-after-free] codeql[cpp/use-after-free]
 
     // clang-format off
   #include "common_entity_handle_data.spec"
@@ -7784,6 +7790,11 @@ dwg_decode_add_object (Dwg_Data *restrict dwg, Bit_Chain *dat,
         }
       break;
     case DWG_TYPE_INSERT:
+      if (obj->index == 97385u)
+        {
+          int r = bit_position (dat);
+
+        }
       error = dwg_decode_INSERT (dat, obj);
       break;
     case DWG_TYPE_MINSERT:
@@ -8958,6 +8969,49 @@ decode_preR13_DIMENSION (Bit_Chain *restrict dat, Dwg_Object *restrict obj)
       LOG_ERROR ("Unknown preR13 DIMENSION type %u", dimtype);
       error |= DWG_ERR_VALUEOUTOFBOUNDS;
     }
+
+  return error;
+}
+
+int
+read_preR13_sentinel (Dwg_Sentinel *sentinel,
+                      Bit_Chain *restrict dat, Dwg_Data *restrict dwg)
+{
+  int error = 0;
+  BITCODE_TF r11_sentinel;
+
+  if (dat->byte + 16 > dat->size)
+    {
+      LOG_ERROR ("%s buffer overflow at pos %" PRIuSIZE " > size %" PRIuSIZE,
+                 __FUNCTION__, dat->byte + 16, dat->size);
+      return DWG_ERR_INVALIDDWG;
+    }
+  r11_sentinel = bit_read_TF (dat, 16U);
+  if (!r11_sentinel)
+    return DWG_ERR_INVALIDDWG;
+
+  LOG_RPOS;
+  LOG_TRACE_TF (r11_sentinel, 16);
+
+  int i = 0;
+
+    while ( i <= DWG_SENTINEL_R11_AUXHEADER_END ) {
+
+        if (memcmp (r11_sentinel, dwg_sentinel (i), 16))
+          {
+            i++;
+          }
+        else
+          break;
+    }
+
+    if (i <= DWG_SENTINEL_R11_AUXHEADER_END)
+    {
+        *sentinel = i;
+    }
+    else error = DWG_ERR_SECTIONNOTFOUND;
+
+  free (r11_sentinel);
 
   return error;
 }

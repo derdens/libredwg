@@ -452,13 +452,16 @@
             FIELD_RC (color.alpha, 0);
           }
         }
+
       if (flags & 0x40)
         {
-#ifndef IS_ENCODER
+#ifdef IS_ENCODER
           FIELD_HANDLE (color.handle, 0, 430); // DBCOLOR 1E9F74 => 1F05B9 lgtm[cpp/use-after-free] codeql[cpp/use-after-free]
 #endif
         }
-      else if (flags & 0x80) // and not a reference
+      else
+
+          if (flags & 0x80) // and not a reference
         {
           DXF {
             VALUE_BL (_ent->color.rgb & 0x00ffffff, 420);

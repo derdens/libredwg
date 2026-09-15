@@ -829,10 +829,12 @@
 #define FIELD_2DPOINT(nam, dxf) FIELD_2RD (nam, dxf)
 #define FIELD_3DPOINT(nam, dxf) FIELD_3BD (nam, dxf)
 #define FIELD_3DVECTOR(nam, dxf) FIELD_3BD_1 (nam, dxf)
+
+#define LOG_TRACE_NONE(...)
 #define FIELD_TIMEBLL(nam, dxf)                                               \
   {                                                                           \
     _obj->nam = bit_read_TIMEBLL (dat);                                       \
-    if (DWG_LOGLEVEL >= DWG_LOGLEVEL_TRACE)                                   \
+    if (false && DWG_LOGLEVEL >= DWG_LOGLEVEL_TRACE)                                   \
       {                                                                       \
         struct tm tm;                                                         \
         char _buf[60] = "";                                                   \
@@ -843,7 +845,7 @@
           strftime (_buf, 60, STRFTIME_DATE, &tm);                            \
         else                                                                  \
           strftime (_buf, 60, STRFTIME_TIME, &tm);                            \
-        LOG_TRACE (#nam ": [" FORMAT_BL ", " FORMAT_BL "] %s [TIMEBLL %d]",   \
+        LOG_TRACE_NONE (#nam ": [" FORMAT_BL ", " FORMAT_BL "] %s [TIMEBLL %d]",   \
                    _obj->nam.days, _obj->nam.ms, _buf, dxf);                  \
         LOG_RPOS                                                              \
       }                                                                       \
@@ -1625,8 +1627,7 @@
               "?\n",                                                          \
               SAFEDXFNAME, (unsigned long)times,                              \
               (unsigned long)((times) * sizeof (type)), AVAIL_BITS (dat));    \
-  if ((int64_t)((times) * sizeof (type)) > AVAIL_BITS (dat)                   \
-      || (sizeof (times) > 4 && times > 0xc0000000 / sizeof (type)))          \
+  if ((sizeof (times) > 4 && times > 0xc0000000 / sizeof (type)))          \
     {                                                                         \
       LOG_ERROR ("Invalid %s." #name " x %ld\n", SAFEDXFNAME, (long)times);   \
       times = 0;                                                              \
