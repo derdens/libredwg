@@ -3676,6 +3676,7 @@ DWG_OBJECT (DIMASSOC)
       SUB_FIELD_BL (ref[rcount1], num_xrefs, 0);
       SUB_HANDLE_VECTOR (ref[rcount1], xrefs, num_xrefs, 4, 331);
 
+      if (FIELD_VALUE (has_lastpt_ref) == 0 || SUB_FIELD_VALUE (ref[rcount1], osnap_type) != 6)
       if (FIELD_VALUE (ref[rcount1].osnap_type) != 0)
         {
           SUB_FIELD_BL (ref[rcount1], main_subent_type, 73);
@@ -5667,7 +5668,41 @@ DWG_OBJECT_END
 // see https://help.autodesk.com/view/OARX/2018/ENU/?guid=OREF-AcDbAssoc2dConstraintGroup
 DWG_OBJECT (ASSOC2DCONSTRAINTGROUP)
   HANDLE_UNKNOWN_BITS;
-  AcDbAssocAction_fields;
+SUBCLASS (AcDbAssocAction); /* until r2010: 1, 2013+: 2 */
+FIELD_BS (class_version,
+          90); /* 0 WellDefined, 1 UnderConstrained, 2 OverConstrained, \
+                  3 Inconsistent, 4 NotEvaluated, 5 NotAvailable, \ 6
+                  RejectedByClient */
+FIELD_BL (geometry_status, 90);
+FIELD_HANDLE (owningnetwork, 4, 330);
+FIELD_HANDLE (actionbody, 3, 360);
+FIELD_BL (action_index, 90);
+FIELD_BL (max_assoc_dep_index, 90);
+FIELD_BL (num_deps, 90);
+REPEAT (num_deps, deps, Dwg_ASSOCACTION_Deps)
+REPEAT_BLOCK
+{
+  SUB_FIELD_B (deps[rcount1], is_owned, 0);
+  int dxf = _obj->deps[rcount1].is_owned ? 360 : 330;
+  int code = _obj->deps[rcount1].is_owned ? 3 : 4;
+
+  SUB_FIELD_HANDLE (deps[rcount1], dep, code, dxf);
+}
+END_REPEAT_BLOCK
+END_REPEAT (deps);
+if (FIELD_VALUE (class_version) > 1)
+  {
+    VALUE_BS (0, 90);
+    FIELD_BL (num_owned_params, 90);
+    HANDLE_VECTOR (owned_params, num_owned_params, 3, 360);
+    VALUE_BS (0, 90);
+    FIELD_BL (num_values, 90);
+    REPEAT (num_values, values, Dwg_VALUEPARAM)
+    REPEAT_BLOCK
+    AcDbValueParam_fields (values[rcount1]);
+    END_REPEAT_BLOCK
+    END_REPEAT (values);
+  }
   FIELD_BL (version, 90);       // 2
   FIELD_B (b1, 70);             // 0
   FIELD_3BD (workplane[0], 10); // 0,0,0
@@ -5679,12 +5714,23 @@ DWG_OBJECT (ASSOC2DCONSTRAINTGROUP)
   HANDLE_VECTOR (actions, num_actions, 4, 360);
 
   FIELD_BL (num_nodes, 90); // 9
-  REPEAT (num_nodes, nodes, Dwg_CONSTRAINTGROUPNODE)
-  REPEAT_BLOCK
-      AcConstraintGroupNode_fields (nodes[rcount1]);
-      SET_PARENT_OBJ (nodes[rcount1]);
-  END_REPEAT_BLOCK
-  END_REPEAT (nodes)
+  //REPEAT (num_nodes, nodes, Dwg_CONSTRAINTGROUPNODE)
+  //REPEAT_BLOCK
+  //    //AcConstraintGroupNode_fields (nodes[rcount1]);
+  //    SUB_FIELD_BLd (nodes[rcount1], nodeid, 90);
+  //    PRE (R_2013b)
+  //    {
+  //      SUB_FIELD_RC (nodes[rcount1], status, 70);
+  //    }
+  //    SUB_FIELD_BL (nodes[rcount1], num_connections, 90);
+  //    FIELD_VECTOR (nodes[rcount1].connections, BL, nodes[rcount1].num_connections, 90);
+  //    SINCE (R_2013b)
+  //    {
+  //      SUB_FIELD_RC (nodes[rcount1], status, 70);
+  //    }
+  //    SET_PARENT_OBJ (nodes[rcount1]);
+  //END_REPEAT_BLOCK
+  //END_REPEAT (nodes)
   START_OBJECT_HANDLE_STREAM;
 DWG_OBJECT_END
 

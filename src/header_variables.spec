@@ -277,15 +277,15 @@
       // adjust for timezone offset
       _obj->TDCREATE.ms    = _obj->TDUCREATE.ms + off;
       _obj->TDCREATE.value = _obj->TDCREATE.days + (_obj->TDCREATE.ms * 1e-8);
-      strftime (_buf, 60, STRFTIME_DATE, cvt_TIMEBLL (&tm, _obj->TDCREATE));
-      LOG_TRACE ("=> TDCREATE: [" FORMAT_BL ", " FORMAT_BL "] %s [TIMEBLL 40]\n",
-                   _obj->TDCREATE.days, _obj->TDCREATE.ms, _buf);
+      //strftime (_buf, 60, STRFTIME_DATE, cvt_TIMEBLL (&tm, _obj->TDCREATE));
+      //LOG_TRACE ("=> TDCREATE: [" FORMAT_BL ", " FORMAT_BL "] %s [TIMEBLL 40]\n",
+      //             _obj->TDCREATE.days, _obj->TDCREATE.ms, _buf);
       _obj->TDUPDATE.days  = _obj->TDUUPDATE.days;
       _obj->TDUPDATE.ms    = _obj->TDUUPDATE.ms + off;
       _obj->TDUPDATE.value = _obj->TDUPDATE.days + (_obj->TDUPDATE.ms * 1e-8);
-      strftime (_buf, 60, STRFTIME_DATE, cvt_TIMEBLL (&tm, _obj->TDUPDATE));
-      LOG_TRACE ("=> TDUPDATE: [" FORMAT_BL ", " FORMAT_BL "] %s [TIMEBLL 40]\n",
-                   _obj->TDUPDATE.days, _obj->TDUPDATE.ms, _buf);
+      //strftime (_buf, 60, STRFTIME_DATE, cvt_TIMEBLL (&tm, _obj->TDUPDATE));
+      //LOG_TRACE ("=> TDUPDATE: [" FORMAT_BL ", " FORMAT_BL "] %s [TIMEBLL 40]\n",
+      //             _obj->TDUPDATE.days, _obj->TDUPDATE.ms, _buf);
     }
   }
   SINCE (R_2004a) {

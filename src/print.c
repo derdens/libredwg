@@ -354,6 +354,7 @@ static BITCODE_BL rcount1, rcount2;
                                 const Dwg_Object *restrict obj)               \
   {                                                                           \
     BITCODE_BL vcount, rcount3, rcount4;                                      \
+(void)vcount, (void)rcount3, (void)rcount4; \
     Dwg_Entity_##token *ent, *_obj;                                           \
     Dwg_Object_Entity *_ent;                                                  \
     Bit_Chain *hdl_dat = dat;                                                 \
@@ -381,6 +382,7 @@ static BITCODE_BL rcount1, rcount2;
                                 const Dwg_Object *restrict obj)               \
   {                                                                           \
     BITCODE_BL vcount, rcount3, rcount4;                                      \
+(void)vcount, (void)rcount3, (void)rcount4; \
     Dwg_Object_##token *_obj;                                                 \
     Bit_Chain *hdl_dat = dat;                                                 \
     Bit_Chain *str_dat = dat;                                                 \

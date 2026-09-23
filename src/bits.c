@@ -120,6 +120,11 @@ bit_reset_chain (Bit_Chain *dat)
     dat->size -= pos;
 }
 
+void
+stop ()
+{
+  int r = 0;
+}
 #ifdef DWG_ABORT
 #  define CHK_OVERFLOW(func, retval)                                          \
     if (dat->byte >= MAX_MEM_ALLOC                                            \
@@ -149,6 +154,7 @@ bit_reset_chain (Bit_Chain *dat)
                      : (dat->byte >= dat->size)))                             \
       {                                                                       \
         loglevel = dat->opts & DWG_OPTS_LOGLEVEL;                             \
+        stop();                             \
         LOG_ERROR ("%s buffer overflow at %" PRIuSIZE ".%u >= %" PRIuSIZE,    \
                    func, dat->byte, dat->bit, dat->size);                     \
         return retval;                                                        \
@@ -625,6 +631,7 @@ bit_read_BL (Bit_Chain *dat)
   else /* if (two_bit_code == 3) */
     {
       loglevel = dat->opts & DWG_OPTS_LOGLEVEL;
+      stop();
       LOG_ERROR ("bit_read_BL: unexpected 2-bit code: '11'");
       return 256;
     }

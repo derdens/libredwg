@@ -177,7 +177,7 @@ decode_3dsolid (Bit_Chain *dat, Bit_Chain *hdl_dat, Dwg_Object *restrict obj,
 {
   Dwg_Data *dwg = obj->parent;
   BITCODE_BL j;
-  BITCODE_BL vcount;
+  BITCODE_BL vcount = 0;
   BITCODE_BL i = 0;
   BITCODE_BL total_size = 0;
   BITCODE_BL num_blocks = 0;
