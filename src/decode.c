@@ -1240,7 +1240,17 @@ decompress_R2004_section (Bit_Chain *restrict src, Bit_Chain *restrict dec)
 
   opcode1 = bit_read_RC (src);
   if ((opcode1 & 0xF0) == 0)
-    opcode1 = copy_bytes (read_literal_length (src, opcode1), src, dec);
+    {
+      lit_length = read_literal_length (src, opcode1);
+      // the literal must fit into the output buffer
+      if ((size_t)lit_length > dec->size - dec->byte)
+        {
+          LOG_ERROR ("Invalid literal_length %u > %" PRIuSIZE " dec.size",
+                     lit_length, dec->size);
+          return DWG_ERR_VALUEOUTOFBOUNDS;
+        }
+      opcode1 = copy_bytes (lit_length, src, dec);
+    }
 
   while (src->byte < src->size && dec->byte < dec->size && opcode1 != 0x11)
     {
@@ -1688,15 +1698,16 @@ read_R2004_section_info (Bit_Chain *restrict dat, Dwg_Data *restrict dwg,
   int error;
 
   if (decomp_data_size > 0x2f000000 && // 790Mb
-      (decomp_data_size > 8 * comp_data_size || comp_data_size > dat->size))
+      ((uint64_t)decomp_data_size > 8 * (uint64_t)comp_data_size
+       || comp_data_size > dat->size))
     {
       LOG_ERROR ("Invalid r2004_header.decomp_data_size %" PRIu32,
                  decomp_data_size);
       return DWG_ERR_OUTOFMEM;
     }
   dec.size = decomp_data_size;
-  dec.chain
-      = (BITCODE_RC *)calloc (decomp_data_size + 1024, sizeof (BITCODE_RC));
+  dec.chain = (BITCODE_RC *)calloc ((size_t)decomp_data_size + 1024,
+                                    sizeof (BITCODE_RC));
   if (!dec.chain)
     {
       LOG_ERROR ("Out of memory");
@@ -2073,10 +2084,24 @@ read_2004_compressed_section (Bit_Chain *dat, Dwg_Data *restrict dwg,
   if (info->size > (int64_t)info->num_sections * (int64_t)info->max_decomp_size
       || info->size < 0)
     {
-      LOG_ERROR ("Invalid section %s size %" PRId64 " > %u * " FORMAT_RL,
-                 info->name, info->size, info->num_sections,
-                 info->max_decomp_size);
-      return DWG_ERR_VALUEOUTOFBOUNDS;
+      if (info->size < 0 || info->size > 0x2f000000) // 790Mb
+        {
+          LOG_ERROR ("Invalid section %s size %" PRId64 " > %u * " FORMAT_RL,
+                     info->name, info->size, info->num_sections,
+                     info->max_decomp_size);
+          return DWG_ERR_VALUEOUTOFBOUNDS;
+        }
+      /* Seen with large AcDb:AcDsPrototype_1b (ACIS datastorage) sections:
+         the pages are bigger than max_decomp_size, so the total size exceeds
+         num_sections * max_decomp_size. Allocate the real size instead of
+         rejecting the section. The per-page bounds checks below still use
+         max_decomp_size, i.e. the allocation. Add one page of headroom,
+         a page at the end may start below info->size and be checked with
+         the full page size. */
+      LOG_WARN ("Section %s size %" PRId64 " > %u * " FORMAT_RL,
+                info->name, info->size, info->num_sections,
+                info->max_decomp_size);
+      max_decomp_size = (uint32_t)info->size + info->max_decomp_size;
     }
   LOG_HANDLE ("Alloc section %s size %" PRIu32 "\n", info->name,
               max_decomp_size);
