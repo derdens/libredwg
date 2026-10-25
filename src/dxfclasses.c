@@ -2,6 +2,8 @@
 /* Command-line: gperf --output-file src/dxfclasses.tmp.c src/dxfclasses.in  */
 /* Computed positions: -k'2,6,10,12,21' */
 
+#include "config.h"
+
 #if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
       && ('%' == 37) && ('&' == 38) && ('\'' == 39) && ('(' == 40) \
       && (')' == 41) && ('*' == 42) && ('+' == 43) && (',' == 44) \
